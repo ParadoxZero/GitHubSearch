@@ -3,5 +3,5 @@ package ml.paradox.githubsearch;/*
  */
 
 public class gitHubRepo {
-
+    /*TODO: create data fields and a constructor to pharse from JSON*/
 }

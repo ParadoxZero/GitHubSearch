@@ -31,6 +31,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
@@ -129,10 +130,12 @@ public class MainActivity extends AppCompatActivity {
         Log.i("search",url);
         Toast.makeText(this,url,Toast.LENGTH_SHORT).show();
         url = "https://api.github.com/search/repositories?q=";
+        /* TODO: Activate searching task */
     }
 
     private void getRepoList(JSONObject obj){
-
+        /* TODO: Complete the pharing of list */
+        JSONArray repoList = obj.getJSONArray();
     }
 
     private void createSearchOptionDialog(){
@@ -185,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
             JsonObjectRequest request = new JsonObjectRequest(params[0], ob, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    res = response;
+                    getRepoList(response);
                 }
             }, new Response.ErrorListener() {
                 @Override
