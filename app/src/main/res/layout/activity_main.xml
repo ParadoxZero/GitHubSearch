@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:clipToPadding="false"
     tools:context="ml.paradox.githubsearch.MainActivity">
 
     <FrameLayout
@@ -13,12 +14,14 @@
         android:layout_margin="10dp"
         android:elevation="15dp"
         android:layout_height="wrap_content"
-        android:alpha="0.5"
-        android:theme="@style/Widget.AppCompat.SearchView.ActionBar">
+        android:alpha="0.95"
+        android:theme="@style/Widget.AppCompat.SearchView.ActionBar"
+        android:id="@+id/frameLayout">
         <SearchView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="15dp"
+            android:id="@+id/search"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:queryHint="Search gitHub"
@@ -28,9 +31,14 @@
     </FrameLayout>
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <include layout="@layout/content_main" />
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">
+        <include layout="@layout/content_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/frameLayout"
+        android:layout_below="@+id/frameLayout"
+        android:layout_alignEnd="@+id/frameLayout" />
     </ScrollView>
-
-
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>
