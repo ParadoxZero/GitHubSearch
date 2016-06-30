@@ -6,4 +6,5 @@
     <color name="search_submit">#cccccc</color>
     <color name="search_query">#ffffff</color>
     <color name="result_bg">#ffffff</color>
+    <color name="transparent">#ffeeee</color>
 </resources>

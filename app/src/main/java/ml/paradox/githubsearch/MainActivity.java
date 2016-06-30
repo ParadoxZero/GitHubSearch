@@ -1,6 +1,7 @@
 package ml.paradox.githubsearch;
 
 import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
@@ -22,17 +23,23 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.SearchView;
+import android.widget.Space;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         optionsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("search","dialog");
+                Log.i("search", "dialog");
                 createSearchOptionDialog();
             }
         });
@@ -126,21 +133,58 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     // Private functions
-    private void searchGithub(){
-        Log.i("search",url);
-        Toast.makeText(this,url,Toast.LENGTH_SHORT).show();
-        url = "https://api.github.com/search/repositories?q=";
-        /* TODO: Activate searching task */
-    }
+    private void displayResults(ArrayList<gitHubRepo> repos){
+        LinearLayout container = (LinearLayout) findViewById(R.id.container);
+        container.removeAllViews();
 
+        for(gitHubRepo g : repos){
+            View result = getLayoutInflater().inflate(R.layout.result_item,null);
+            ResultClickListener listener = new ResultClickListener();
+            listener.init(this,g.url);
+            result.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.i("clicked","clicked!");
+                }
+            });
+            ((TextView) result.findViewById(R.id.repo_name)).setText(g.name);
+            ((TextView)result.findViewById(R.id.repo_full_name)).setText(g.fullName);
+            ((TextView)result.findViewById(R.id.forks_count)).setText("Forks: "+Integer.toString(g.forks));
+            ((TextView)result.findViewById(R.id.stars_count)).setText("Stars: "+Integer.toString(g.stars));
+            ((TextView)result.findViewById(R.id.watchers_count)).setText("Watching: "+Integer.toString(g.watching));
+
+            String details = "Language: " + g.language ;
+            details = details +"\nDescription\n" + g.description ;
+            ((TextView)result.findViewById(R.id.result_details)).setText(details);
+            container.addView(result);
+        }
+    }
+    private void searchGithub(){
+        url = url.replace(" ","%20");
+        Toast.makeText(this,url,Toast.LENGTH_SHORT).show();
+        new getResultsGithub(this).execute(url);
+        url = "https://api.github.com/search/repositories?q=";
+    }
+    private int min(int a,int b){
+        if(a<b) return a ;
+        return b ;
+    }
     private void getRepoList(JSONObject obj){
-        /* TODO: Complete the pharing of list */
-        JSONArray repoList = obj.getJSONArray();
+        try {
+            JSONArray repoList = obj.getJSONArray("items");
+            ArrayList<gitHubRepo> repositaries = new ArrayList<>();
+            for(int i=0;i< min(repoList.length(),20);++i){
+                JSONObject jb = repoList.getJSONObject(i);
+                repositaries.add(new gitHubRepo(jb));
+            }
+            displayResults(repositaries);
+        }catch(org.json.JSONException e){
+            /* TODO: Error message */
+        }
     }
 
     private void createSearchOptionDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        //builder.setView(R.layout.options_alert);
         final View root = getLayoutInflater().inflate(R.layout.options_alert,null);
         builder.setView(root);
         builder.setPositiveButton("Search", new DialogInterface.OnClickListener() {
@@ -171,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private class getResultsGithub extends AsyncTask<String,Void,JSONObject> {
+    private class getResultsGithub extends AsyncTask<String,Void,Void> {
 
         private Context context = null ;
         private JSONObject res ;
@@ -180,31 +224,46 @@ public class MainActivity extends AppCompatActivity {
             super();
             context = c;
         }
-
         @Override
-        protected JSONObject doInBackground(String... params) {
+        protected Void doInBackground(String... params) {
             RequestQueue queue = Volley.newRequestQueue(context);
             JSONObject ob = new JSONObject();
-            JsonObjectRequest request = new JsonObjectRequest(params[0], ob, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    getRepoList(response);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(context,"Error connecting to internet",Toast.LENGTH_SHORT).show();
-                    res = new JSONObject();
-                }
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, params[0], ob,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            getRepoList(response);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(context,"Error connecting to internet",Toast.LENGTH_SHORT).show();
+                            Log.i("Voley",error.toString());
+                            res = new JSONObject();
+                        }
             });
-            return res;
+
+            queue.add(request);
+            return null;
+        }
+
+    }
+
+    private class ResultClickListener implements View.OnClickListener{
+        String url = "";
+        Context c ;
+        public void init(Context context,String link){
+            url = link ;
+            c = context;
         }
 
         @Override
-        protected void onPostExecute(JSONObject jsonObject) {
-            getRepoList(jsonObject);
+        public void onClick(View v) {
+            Toast.makeText(c,url,Toast.LENGTH_SHORT);
         }
     }
+
 
 }
 

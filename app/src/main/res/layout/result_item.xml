@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:clickable="true"
     android:layout_height="wrap_content">
     <RelativeLayout
         android:background="@drawable/rounded_bg_less"
-        android:alpha="0.80"
         android:layout_margin="5dp"
         android:layout_width="match_parent"
         android:elevation="15dp"
         android:clipToPadding="false"
+        android:clickable="false"
         android:layout_height="wrap_content">
 
         <TextView
@@ -49,14 +50,12 @@
                 android:background="@drawable/rounded_bg"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Forkes: "
-                android:textSize="10dp"
+                android:textSize="12sp"
                 android:padding="10dp"
                 android:gravity="center_horizontal"
                 android:typeface="monospace"
                 android:id="@+id/forks_count"
-                android:textStyle="bold"
-                android:layout_below="@+id/repo_name"
-                android:layout_centerHorizontal="true" />
+                android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
